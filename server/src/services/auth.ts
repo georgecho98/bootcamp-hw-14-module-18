@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-
+import { GraphQLError } from 'graphql';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -10,8 +10,24 @@ interface JwtPayload {
   email: string,
 }
 
+interface Context {
+  token?:string;
+}
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
+  const token = context.token;
+
+  if (!token) {
+
+    throw new GraphQLError('Authentication token is required',{
+      extensions:{
+        code:'UNAUTHENTICATED',
+        http:{status:401}      }
+
+    })
+  }
+
+
 
   if (authHeader) {
     const token = authHeader.split(' ')[1];
@@ -36,4 +52,11 @@ export const signToken = (username: string, email: string, _id: unknown) => {
   const secretKey = process.env.JWT_SECRET_KEY || '';
 
   return jwt.sign(payload, secretKey, { expiresIn: '1h' });
+};
+
+export class AuthenticationError extends GraphQLError {
+  constructor(message: string) {
+    super(message, undefined, undefined, undefined, ['UNAUTHENTICATED']);
+    Object.defineProperty(this, 'name', { value: 'AuthenticationError' });
+  }
 };
