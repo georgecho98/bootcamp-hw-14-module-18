@@ -1,6 +1,3 @@
-import User from "../models/User";
-import bookSchema from "../models/Book";
-
 
 const typeDefs =` {
     type Query {
@@ -13,10 +10,7 @@ const typeDefs =` {
         username:String
         email:String
         bookCount:Int
-        savedBooks:[Book]
-    
-    
-    }
+        savedBooks:[Book]  }
 
     type Book {
         bookId:ID!

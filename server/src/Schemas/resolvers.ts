@@ -1,9 +1,9 @@
-import type IUserContext from '../interfaces/UserContext.js';
-import type IUserDocument from '../interfaces/UserDocument.js';
+import type IUserContext from '../interfaces/UserContext';
+import type IUserDocument from '../interfaces/UserDocument';
 import type IBookInput from '../interfaces/BookInput.js';
 import { User } from '../models/index.js';
 import { signToken, AuthenticationError } from '../services/auth.js';
-import { saveBook } from '../controllers/user-controller.js';
+
 
 
 
@@ -22,7 +22,7 @@ const resolvers = {
     },
 
 
-    mutation: {
+    Mutation: {
         addUser: async (_parent: any, _args: any): Promise<{ token: string, user: IUserDocument }> => {
             const user = await User.create(_args)
             const token = signToken(user.username, user.email, user._id)
@@ -73,7 +73,7 @@ const resolvers = {
               return removeB;
             }
             throw AuthenticationError;
-          },
+        }
 
     }
 

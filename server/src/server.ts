@@ -3,12 +3,10 @@ import path from 'node:path';
 import db from './config/connection.js';
 import routes from './routes/index.js';
 import {typeDefs, resolvers} from './Schemas/index.js'
-import {AppolloServer} from "@apollo/server"
+import {ApolloServer} from "@apollo/server"
 import {records} from "./routes/index.js"
 import {expressMiddleware} from '@apollo/server/express4'
 import { authenticateToken } from './services/auth.js';
-const app = express();
-const PORT = process.env.PORT || 3001;
 
 // app.use(express.urlencoded({ extended: true }));
 // app.use(express.json());
@@ -25,7 +23,7 @@ const PORT = process.env.PORT || 3001;
 // });
 
 
-const server = ApolloServer(
+const server = new ApolloServer(
 { typeDefs, resolvers})
 
 
@@ -39,14 +37,15 @@ const startApolloServer = async () =>{
   app.use(express.json());
   
   app.use('/graphql', expressMiddleware( server as any,
-    {context: authenticateToken as any}  )
+    {context: authenticateToken as any}  ));
 
   if (process.env.NODE_ENV==='production') {
-    app.use(express.static(path.join(_dirname, '../client/dist')))
+    app.use(express.static(path.join(__dirname, '../client/dist')))
     app.get('*', (_req: Request, res:Response) =>{
-      res.sendFile(path.join(_dirname, '../client/dist/index.html'));
+      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 
     })
+  }
   
   app.listen(PORT, ()=>{
     console.log(`🌍 Now listening on localhost:${PORT}`);
@@ -57,7 +56,7 @@ const startApolloServer = async () =>{
   
   }
 
-}
+
 
 startApolloServer();
 

@@ -1,12 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SetStateAction } from 'react';
 import { Container, Card, Button, Row, Col } from 'react-bootstrap';
 
 import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 import type { User } from '../models/User';
+import { GET_ME } from '../utils/queries'; 
+import {useQuery, useMutation} from  '@apollo/client';
+
+
+import { useParams } from 'react-router-dom';
+import { CREATE_REMOVE_BOOK } from '../utils/mutations';
 
 const SavedBooks = () => {
+
   const [userData, setUserData] = useState<User>({
     username: '',
     email: '',
@@ -17,33 +24,36 @@ const SavedBooks = () => {
   // use this to determine if `useEffect()` hook needs to run again
   const userDataLength = Object.keys(userData).length;
 
+  
+    // Fetch user data using useQuery
+  const { data, loading, error } = useQuery(GET_ME, {
+    fetchPolicy: 'network-only',
+  });
+  
   useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-        if (!token) {
-          return false;
-        }
-
-        const response = await getMe(token);
-
-        if (!response.ok) {
-          throw new Error('something went wrong!');
-        }
-
-        const user = await response.json();
-        setUserData(user);
-      } catch (err) {
-        console.error(err);
+    if (data) {
+        setUserData(data.user); // Assuming 'user' is the correct field in your query response
       }
-    };
+  }, [data]);
+  
+    if (loading) return <h2>LOADING...</h2>;
+    if (error) return <h2>Error: {error.message}</h2>;
 
-    getUserData();
-  }, [userDataLength]);
 
+  const{deleteBook} = useMutation(CREATE_REMOVE_BOOK, {
+    onCompleted: (data: { removeBook: SetStateAction<User>; }) => {
+      // Assuming the mutation returns the updated user data
+      setUserData(data.removeBook); // Adjust based on your mutation response
+    },
+    onError: (error: any) => {
+      console.error("Error deleting book:", error);
+    }
+  });
+
+  
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId: string) => {
+    
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
     if (!token) {
@@ -51,14 +61,15 @@ const SavedBooks = () => {
     }
 
     try {
-      const response = await deleteBook(bookId, token);
+      // const response = await deleteBook(bookId, token);
+      await deleteBook({variables:{bookId}})
+      // if (!response.ok) {
+      //   throw new Error('something went wrong!');
+      // }
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      const updatedUser = await response.json();
-      setUserData(updatedUser);
+      // const updatedUser = await response.json();
+      
+      // setUserData(updatedUser);
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
     } catch (err) {
