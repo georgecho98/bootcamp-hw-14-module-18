@@ -1,11 +1,8 @@
-import type IUserContext from '../interfaces/UserContext';
-import type IUserDocument from '../interfaces/UserDocument';
+import type IUserContext from '../interfaces/UserContext.js';
+import type IUserDocument from '../interfaces/UserDocument.js';
 import type IBookInput from '../interfaces/BookInput.js';
-import { User } from '../models/index.js';
+import  User from '../models/User.js';
 import { signToken, AuthenticationError } from '../services/auth.js';
-
-
-
 
 
 const resolvers = {
@@ -47,32 +44,31 @@ const resolvers = {
             return { user, token };
         },
 
-        saveBook: async (_parent: any, { bookData}: {bookData: IBookInput}, context: any) => {
+        saveBook: async (_parent: any, { bookData }: { bookData: IBookInput }, context: IUserContext):Promise<IUserDocument|null> => {
             if (context.user) {
-              const book = await User.findOneAndUpdate(
-                { _id: context.user._id },
-                { $addToSet: { savedBooks: bookData } },
-                {new:true}
-              );
-      
-              return book;
-            }
-            throw AuthenticationError;
-            ('You need to be logged in!');
-          },
+                const book = await User.findOneAndUpdate(
+                    { _id: context.user._id },
+                    { $addToSet: { savedBooks: bookData } },
+                    { new: true }
+                );
 
-          removeBook: async (_parent: any, { bookId }: {bookId:string}, context: any) => {
-            if (context.user) {
-              const removeB = await User.findOneAndDelete({
-                _id: context.user._Id,
-                { $pull: { savedBooks: {bookId} } },
-                {new:true}
-            );
-      
-              
-              return removeB;
+                return book;
             }
-            throw AuthenticationError;
+            throw new AuthenticationError('You need to be logged in!');
+        },
+
+        removeBook: async (_parent: any, { bookId }: { bookId: string }, context: IUserContext):Promise<IUserDocument |null>=> {
+            if (context.user) {
+                const removeB = await User.findOneAndUpdate(
+                    { _id: context.user._id },
+                    { $pull: { savedBooks: { bookId } } },
+                    { new: true }
+                );
+
+
+                return removeB;
+            }
+            throw new AuthenticationError('You need to be logged');
         }
 
     }

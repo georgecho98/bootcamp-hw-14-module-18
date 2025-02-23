@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+// import { gql, useMutation } from '@apollo/client';
 import type { FormEvent } from 'react';
 import {
   Container,
@@ -11,11 +12,12 @@ import {
 } from 'react-bootstrap';
 
 import Auth from '../utils/auth';
-import { saveBook, searchGoogleBooks } from '../utils/API';
+import { searchGoogleBooks } from '../utils/API';
 import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
 import type { Book } from '../models/Book';
 import type { GoogleAPIBook } from '../models/GoogleAPIBook';
-import { CREATE_SAVE_BOOK } from '../utils/mutations';
+import { SAVE_BOOK } from '../utils/mutations';
+// import SavedBooks from './SavedBooks';
 
 const SearchBooks = () => {
   // create state for holding returned google api data
@@ -25,14 +27,14 @@ const SearchBooks = () => {
 
   // create state to hold saved bookId values
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
-  const [saveBook]:any = useMutation(CREATE_SAVE_BOOK);
+  const [saveBook, {error}]:any = useMutation(SAVE_BOOK);
   
   
   // set up useEffect hook to save `savedBookIds` list to localStorage on component unmount
   // learn more here: https://reactjs.org/docs/hooks-effect.html#effects-with-cleanup
   useEffect(() => {
     return () => saveBookIds(savedBookIds);
-  });
+  }, [savedBookIds]);
 
   // create method to search for books and set state on form submit
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -91,17 +93,17 @@ const SearchBooks = () => {
             image:bookToSave.image,
                     
           }
-                  }
+       }
 
       })
 
-      if (!data.ok) {
+      if (data && data.saveBook) {
+        setSavedBookIds([...savedBookIds, bookToSave.bookId]);
+      
+      } else {
         throw new Error('something went wrong!');
       }
- 
-
       // if book successfully saves to user's account, save book id to state
-      setSavedBookIds([...savedBookIds, bookToSave.bookId]);
     } catch (err) {
       console.error(err);
     }
@@ -174,7 +176,4 @@ const SearchBooks = () => {
 };
 
 export default SearchBooks;
-function useMutation(arg0: {}) {
-  throw new Error('Function not implemented.');
-}
 

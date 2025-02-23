@@ -1,7 +1,7 @@
 import { useState, useEffect, SetStateAction } from 'react';
 import { Container, Card, Button, Row, Col } from 'react-bootstrap';
 
-import { getMe, deleteBook } from '../utils/API';
+// import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 import type { User } from '../models/User';
@@ -9,8 +9,7 @@ import { GET_ME } from '../utils/queries';
 import {useQuery, useMutation} from  '@apollo/client';
 
 
-import { useParams } from 'react-router-dom';
-import { CREATE_REMOVE_BOOK } from '../utils/mutations';
+import { REMOVE_BOOK } from '../utils/mutations';
 
 const SavedBooks = () => {
 
@@ -40,8 +39,10 @@ const SavedBooks = () => {
     if (error) return <h2>Error: {error.message}</h2>;
 
 
-  const{deleteBook} = useMutation(CREATE_REMOVE_BOOK, {
-    onCompleted: (data: { removeBook: SetStateAction<User>; }) => {
+  const{deleteBook} :any = useMutation(REMOVE_BOOK, {
+    onCompleted: 
+    (data: { removeBook: SetStateAction<User>; }) => 
+      {
       // Assuming the mutation returns the updated user data
       setUserData(data.removeBook); // Adjust based on your mutation response
     },
@@ -63,14 +64,7 @@ const SavedBooks = () => {
     try {
       // const response = await deleteBook(bookId, token);
       await deleteBook({variables:{bookId}})
-      // if (!response.ok) {
-      //   throw new Error('something went wrong!');
-      // }
 
-      // const updatedUser = await response.json();
-      
-      // setUserData(updatedUser);
-      // upon success, remove book's id from localStorage
       removeBookId(bookId);
     } catch (err) {
       console.error(err);
