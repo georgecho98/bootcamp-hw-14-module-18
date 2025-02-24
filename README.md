@@ -31,6 +31,19 @@
 ## Credit
     Apolloserver, , react, typscript, API, JWT, 
 
+## Usage
+   Frontpagr
+<p>
+<img src = "./readmepic/1.JPG" height = 60% width = 60%></p>
+
+<p>
+<img src = "./readmepic/2.JPG" height = 60% width = 60%></p>
+
+<p>
+<img src = "./readmepic/3.JPG" height = 60% width = 60%></p>
+
+<p>
+<img src = "./readmepic/4.JPG" height = 60% width = 60%></p>
 
 
 ## Questions

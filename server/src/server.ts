@@ -7,7 +7,7 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { typeDefs, resolvers } from './Schemas/index.js';
 import { authenticateToken } from './services/auth.js';
 import { fileURLToPath } from 'url';
-
+import routes from './routes/index.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -22,6 +22,9 @@ const __dirname = path.dirname(__filename);
 // app.use(routes);
 
 // db.once('open', () => {
+
+
+
 //   app.listen(PORT, () => console.log(`🌍 Now listening on localhost:${PORT}`));
 // });
 
@@ -45,13 +48,15 @@ const startApolloServer = async () =>{
 
     
   if (process.env.NODE_ENV==='production') {
-    app.use(express.static(path.join(__dirname, '../client/dist')))
+    app.use(express.static(path.join(__dirname, '../../client/dist')))
     app.get('*', (_req: Request, res:Response) =>{
-      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+      res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
 
     })
   }
   
+  app.use(routes);
+
   app.listen(PORT, ()=>{
     console.log(`🌍 Now listening on localhost:${PORT}`);
     console.log(`USE GraphQL at http://localhost:${PORT}/graphql`)
